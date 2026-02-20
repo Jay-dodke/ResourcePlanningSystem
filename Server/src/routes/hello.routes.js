@@ -5,7 +5,7 @@ import checkHelloworld from "../middlewares/hello.middleware.js";
 
 const router = express.Router();
 
-// middleware applied here
+
 router.get("/", checkHelloworld, getHello);
 
 export default router;

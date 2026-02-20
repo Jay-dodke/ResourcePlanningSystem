@@ -1,8 +1,8 @@
 const checkHelloworld = (req, res, next) => {
-  const key = req.headers["hello"];
+  const key = req.query.hello;
 
   if (key === "abchello") {
-    return next(); // pass to route
+    return next();
   }
 
   res.status(401).send("invalid user");

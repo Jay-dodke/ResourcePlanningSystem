@@ -5,7 +5,9 @@ function App() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    API.get("/hello")
+    const helloKey = import.meta.env.VITE_HELLO_KEYS;
+
+    API.get("/hello", {params: {hello: helloKey}})
       .then((res) => {
         setMessage(res.data.message);
       })

@@ -1,0 +1,44 @@
+import express from "express";
+import authRoutes from "../modules/auth/auth.routes.js";
+import userRoutes from "../modules/users/user.routes.js";
+import roleRoutes from "../modules/roles/role.routes.js";
+import projectRoutes from "../modules/projects/project.routes.js";
+import allocationRoutes from "../modules/allocations/allocation.routes.js";
+import availabilityRoutes from "../modules/availability/availability.routes.js";
+import dashboardRoutes from "../modules/dashboard/dashboard.routes.js";
+import reportsRoutes from "../modules/reports/reports.routes.js";
+import notificationRoutes from "../modules/notifications/notification.routes.js";
+import settingsRoutes from "../modules/settings/settings.routes.js";
+import auditRoutes from "../modules/audit/audit.routes.js";
+import taskRoutes from "../modules/tasks/task.routes.js";
+import skillRoutes from "../modules/skills/skill.routes.js";
+import departmentRoutes from "../modules/departments/department.routes.js";
+import timesheetRoutes from "../modules/timesheets/timesheet.routes.js";
+import leaveRoutes from "../modules/leaves/leave.routes.js";
+import analyticsRoutes from "../modules/analytics/analytics.routes.js";
+import searchRoutes from "../modules/search/search.routes.js";
+import projectRequestRoutes from "../modules/projectRequests/projectRequest.routes.js";
+
+const router = express.Router();
+
+router.use("/auth", authRoutes);
+router.use("/users", userRoutes);
+router.use("/roles", roleRoutes);
+router.use("/projects", projectRoutes);
+router.use("/allocations", allocationRoutes);
+router.use("/availability", availabilityRoutes);
+router.use("/dashboard", dashboardRoutes);
+router.use("/reports", reportsRoutes);
+router.use("/notifications", notificationRoutes);
+router.use("/settings", settingsRoutes);
+router.use("/audit", auditRoutes);
+router.use("/tasks", taskRoutes);
+router.use("/skills", skillRoutes);
+router.use("/departments", departmentRoutes);
+router.use("/timesheets", timesheetRoutes);
+router.use("/leaves", leaveRoutes);
+router.use("/analytics", analyticsRoutes);
+router.use("/search", searchRoutes);
+router.use("/project-requests", projectRequestRoutes);
+
+export default router;

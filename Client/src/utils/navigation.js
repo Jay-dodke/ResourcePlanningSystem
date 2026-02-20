@@ -1,0 +1,30 @@
+export const adminNavItems = [
+  {label: "Dashboard", path: "/"},
+  {label: "Employees", path: "/employees"},
+  {label: "Projects", path: "/projects"},
+  {label: "Tasks", path: "/tasks"},
+  {label: "Allocations", path: "/allocations"},
+  {label: "Requests", path: "/requests"},
+  {label: "Availability", path: "/availability"},
+  {label: "Departments", path: "/departments"},
+  {label: "Skills", path: "/skills"},
+  {label: "Timesheets", path: "/timesheets"},
+  {label: "Leave", path: "/leaves"},
+  {label: "Calendar", path: "/calendar"},
+  {label: "Analytics", path: "/analytics"},
+  {label: "Reports", path: "/reports"},
+  {label: "Notifications", path: "/notifications"},
+  {label: "Audit", path: "/audit"},
+  {label: "Roles", path: "/roles"},
+  {label: "Settings", path: "/settings"},
+];
+
+export const employeeNavItems = [
+  {label: "My Overview", path: "/me"},
+  {label: "My Tasks", path: "/my-tasks"},
+  {label: "My Team", path: "/my-team"},
+  {label: "Timesheets", path: "/timesheets"},
+  {label: "Leave", path: "/leaves"},
+  {label: "Calendar", path: "/calendar"},
+  {label: "Notifications", path: "/notifications"},
+];

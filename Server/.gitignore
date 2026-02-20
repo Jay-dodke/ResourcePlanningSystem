@@ -1,1 +1,15 @@
 .env
+.node_modules
+dist
+build
+coverage
+logs
+*.log
+.DS_Store
+.env.local
+.env.development
+.env.test
+.env.production
+.env.example
+src/config/db.js
+src/seed/seed.js

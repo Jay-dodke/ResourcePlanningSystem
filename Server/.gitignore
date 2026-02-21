@@ -13,3 +13,8 @@ logs
 .env.example
 src/config/db.js
 src/seed/seed.js
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

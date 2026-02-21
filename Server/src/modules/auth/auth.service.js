@@ -31,7 +31,11 @@ export const register = async ({name, email, password, roleId}) => {
 };
 
 export const login = async ({email, password}) => {
-  const user = await User.findOne({email}).select("+passwordHash").populate("roleId");
+  const user = await User.findOne({email})
+    .select("+passwordHash")
+    .populate("roleId")
+    .populate("departmentId", "name code")
+    .populate("managerId", "name email designation");
   if (!user) {
     throw new ApiError(401, "Invalid credentials");
   }
@@ -79,6 +83,13 @@ export const login = async ({email, password}) => {
     role: user.roleId?.name || "user",
     permissions: user.roleId?.permissions || [],
     avatar: user.avatar || "",
+    designation: user.designation || "",
+    departmentId: user.departmentId || null,
+    managerId: user.managerId || null,
+    skills: user.skills || [],
+    status: user.status || "active",
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
     mustChangePassword: Boolean(user.mustChangePassword),
   };
 
@@ -111,7 +122,10 @@ export const refresh = async (refreshToken) => {
     throw new ApiError(401, "Refresh token expired");
   }
 
-  const user = await User.findById(payload.sub).populate("roleId");
+  const user = await User.findById(payload.sub)
+    .populate("roleId")
+    .populate("departmentId", "name code")
+    .populate("managerId", "name email designation");
   if (!user) {
     throw new ApiError(401, "Invalid refresh token");
   }
@@ -152,6 +166,13 @@ export const refresh = async (refreshToken) => {
     role: user.roleId?.name || "user",
     permissions: user.roleId?.permissions || [],
     avatar: user.avatar || "",
+    designation: user.designation || "",
+    departmentId: user.departmentId || null,
+    managerId: user.managerId || null,
+    skills: user.skills || [],
+    status: user.status || "active",
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
     mustChangePassword: Boolean(user.mustChangePassword),
   };
 

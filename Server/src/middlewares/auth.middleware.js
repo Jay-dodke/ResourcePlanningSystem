@@ -21,7 +21,10 @@ export const requireAuth = asyncHandler(async (req, res, next) => {
     throw new ApiError(401, "Unauthorized");
   }
 
-  const user = await User.findById(payload.sub).populate("roleId");
+  const user = await User.findById(payload.sub)
+    .populate("roleId")
+    .populate("departmentId", "name code")
+    .populate("managerId", "name email designation");
   if (!user) {
     throw new ApiError(401, "Unauthorized");
   }
@@ -33,6 +36,13 @@ export const requireAuth = asyncHandler(async (req, res, next) => {
     role: user.roleId?.name || "user",
     permissions: user.roleId?.permissions || [],
     avatar: user.avatar || "",
+    designation: user.designation || "",
+    departmentId: user.departmentId || null,
+    managerId: user.managerId || null,
+    skills: user.skills || [],
+    status: user.status || "active",
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
     mustChangePassword: Boolean(user.mustChangePassword),
   };
 
@@ -50,7 +60,10 @@ export const optionalAuth = asyncHandler(async (req, res, next) => {
   try {
     const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     if (payload.type !== "access") return next();
-    const user = await User.findById(payload.sub).populate("roleId");
+    const user = await User.findById(payload.sub)
+      .populate("roleId")
+      .populate("departmentId", "name code")
+      .populate("managerId", "name email designation");
     if (!user) return next();
 
     req.user = {
@@ -60,6 +73,13 @@ export const optionalAuth = asyncHandler(async (req, res, next) => {
       role: user.roleId?.name || "user",
       permissions: user.roleId?.permissions || [],
       avatar: user.avatar || "",
+      designation: user.designation || "",
+      departmentId: user.departmentId || null,
+      managerId: user.managerId || null,
+      skills: user.skills || [],
+      status: user.status || "active",
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
       mustChangePassword: Boolean(user.mustChangePassword),
     };
   } catch (_err) {

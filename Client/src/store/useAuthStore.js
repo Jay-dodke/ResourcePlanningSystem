@@ -1,5 +1,6 @@
 import {create} from "zustand";
 import {persist} from "zustand/middleware";
+import {useAvatarStore} from "./useAvatarStore";
 
 export const useAuthStore = create(
   persist(
@@ -15,7 +16,10 @@ export const useAuthStore = create(
           refreshToken: payload.refreshToken,
         }),
       setTokens: (accessToken, refreshToken) => set({accessToken, refreshToken}),
-      clearAuth: () => set({user: null, accessToken: "", refreshToken: ""}),
+      clearAuth: () => {
+        useAvatarStore.getState().clearOverrides();
+        set({user: null, accessToken: "", refreshToken: ""});
+      },
       setHasHydrated: (value) => set({hasHydrated: value}),
     }),
     {

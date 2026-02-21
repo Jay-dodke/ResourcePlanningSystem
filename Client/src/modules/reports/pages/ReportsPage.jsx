@@ -62,12 +62,12 @@ const ReportsPage = () => {
         action={<Button variant="primary">Generate report</Button>}
       />
       <div className="panel p-5">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-semibold">Utilization summary</p>
             <p className="text-xs text-secondary">Live allocation totals by employee.</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button
               variant="outline"
               onClick={() =>

@@ -21,6 +21,7 @@ export const adminNavItems = [
 
 export const employeeNavItems = [
   {label: "My Overview", path: "/me"},
+  {label: "My Planning", path: "/my-planning"},
   {label: "My Tasks", path: "/my-tasks"},
   {label: "My Team", path: "/my-team"},
   {label: "Timesheets", path: "/timesheets"},

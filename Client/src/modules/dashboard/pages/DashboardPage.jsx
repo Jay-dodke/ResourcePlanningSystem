@@ -5,6 +5,7 @@ import UtilizationChart from "../../../components/charts/UtilizationChart/Utiliz
 import DataTable from "../../../components/tables/DataTable/DataTable";
 import Badge from "../../../components/ui/Badge/Badge";
 import Avatar from "../../../components/ui/Avatar/Avatar";
+import {useAvatarStore} from "../../../store/useAvatarStore";
 import {
   utilizationSeries,
   currentProjects as sampleProjects,
@@ -14,6 +15,7 @@ import {
 
 const DashboardPage = () => {
   const [dashboard, setDashboard] = useState(null);
+  const avatarOverrides = useAvatarStore((state) => state.overrides);
 
   useEffect(() => {
     getDashboard()
@@ -63,7 +65,11 @@ const DashboardPage = () => {
       label: "Employee",
       render: (row) => (
         <div className="flex items-center gap-2">
-          <Avatar src={row.employeeId?.avatar} name={row.employeeId?.name || row.name} size="sm" />
+          <Avatar
+            src={avatarOverrides[row.employeeId?._id] || row.employeeId?.avatar}
+            name={row.employeeId?.name || row.name}
+            size="sm"
+          />
           <span>{row.employeeId?.name || row.name}</span>
         </div>
       ),
@@ -106,7 +112,11 @@ const DashboardPage = () => {
       label: "Employee",
       render: (row) => (
         <div className="flex items-center gap-2">
-          <Avatar src={row.employeeId?.avatar} name={row.employeeId?.name || row.employee} size="sm" />
+          <Avatar
+            src={avatarOverrides[row.employeeId?._id] || row.employeeId?.avatar}
+            name={row.employeeId?.name || row.employee}
+            size="sm"
+          />
           <span>{row.employeeId?.name || row.employee}</span>
         </div>
       ),
@@ -132,7 +142,7 @@ const DashboardPage = () => {
 
   return (
     <>
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 min-[1440px]:grid-cols-4">
         <Card title="Total employees" value={kpis.totalEmployees} meta="Active staff" />
         <Card title="Active projects" value={kpis.activeProjects} meta="Delivery phase" />
         <Card title="Available resources" value={kpis.availableResources} meta="Ready for work" />

@@ -38,7 +38,7 @@ const SearchPage = () => {
   return (
     <section className="flex flex-col gap-4">
       <PageHeader eyebrow="Navigate" title="Global search" />
-      <div className="panel p-4 flex flex-col gap-3 md:flex-row md:items-center">
+      <div className="panel p-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <input
           className="ghost-input flex-1"
           placeholder="Search employees, projects, tasks"

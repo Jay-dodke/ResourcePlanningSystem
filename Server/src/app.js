@@ -29,7 +29,12 @@ if (trustProxy) {
   const proxyValue = trustProxy === "true" ? 1 : Number(trustProxy);
   app.set("trust proxy", Number.isNaN(proxyValue) ? 1 : proxyValue);
 }
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: {policy: "cross-origin"},
+    crossOriginEmbedderPolicy: false,
+  })
+);
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -61,7 +66,14 @@ app.use(
 
 // Routes
 app.get("/health", (req, res) => res.json({success: true, status: "ok"}));
-app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
+app.use(
+  "/uploads",
+  express.static(path.resolve(process.cwd(), "uploads"), {
+    setHeaders: (res) => {
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    },
+  })
+);
 app.use("/api/v1", routes);
 
 app.use(notFound);

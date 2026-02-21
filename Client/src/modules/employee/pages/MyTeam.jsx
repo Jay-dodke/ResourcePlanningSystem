@@ -6,11 +6,13 @@ import {getErrorMessage} from "../../../utils/errors";
 import {getMe} from "../../../services/auth.service";
 import {listAllocationsByEmployee, listAllocationsByProject} from "../../../services/allocations.service";
 import Avatar from "../../../components/ui/Avatar/Avatar";
+import {useAvatarStore} from "../../../store/useAvatarStore";
 
 const MyTeam = () => {
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const avatarOverrides = useAvatarStore((state) => state.overrides);
 
   useEffect(() => {
     setLoading(true);
@@ -48,7 +50,11 @@ const MyTeam = () => {
       label: "Team member",
       render: (row) => (
         <div className="flex items-center gap-2">
-          <Avatar src={row.employeeId?.avatar} name={row.employeeId?.name} size="sm" />
+          <Avatar
+            src={avatarOverrides[row.employeeId?._id] || row.employeeId?.avatar}
+            name={row.employeeId?.name}
+            size="sm"
+          />
           <span>{row.employeeId?.name || "-"}</span>
         </div>
       ),

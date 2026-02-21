@@ -15,3 +15,11 @@ export const requirePermissions = (...permissions) => (req, res, next) => {
 
   return next();
 };
+
+export const requireAdmin = (req, res, next) => {
+  const roleName = req.user?.role || req.user?.roleId?.name || "";
+  if (roleName.toLowerCase() !== "admin") {
+    return next(new ApiError(403, "Forbidden"));
+  }
+  return next();
+};

@@ -1,4 +1,4 @@
-﻿import {useEffect, useState} from "react";
+﻿import {useCallback, useEffect, useState} from "react";
 import PageHeader from "../../../components/ui/PageHeader/PageHeader";
 import Button from "../../../components/ui/Button/Button";
 import NotificationForm from "../components/NotificationForm";
@@ -18,7 +18,7 @@ const NotificationsPage = () => {
   const userId = user?.id || user?._id;
   const pushToast = useUiStore((state) => state.pushToast);
 
-  const fetchNotifications = () => {
+  const fetchNotifications = useCallback(() => {
     setLoading(true);
     listNotifications({limit: 20, userId: isAdmin ? undefined : userId})
       .then((res) => {
@@ -29,11 +29,11 @@ const NotificationsPage = () => {
         setError(getErrorMessage(err, "Unable to load notifications"));
       })
       .finally(() => setLoading(false));
-  };
+  }, [isAdmin, userId]);
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
   const handleCreate = async (payload) => {
     setLoading(true);

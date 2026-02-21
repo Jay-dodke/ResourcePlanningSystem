@@ -40,7 +40,7 @@ const LoginPage = () => {
         localStorage.removeItem("rps-remember-email");
       }
       navigate("/");
-    } catch (err) {
+    } catch {
       setError("Unable to sign in. Check credentials.");
     } finally {
       setLoading(false);

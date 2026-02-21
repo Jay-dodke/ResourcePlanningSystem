@@ -8,6 +8,8 @@ import {listRoles} from "../../../services/roles.service";
 import {listDepartments} from "../../../services/departments.service";
 import {listSkills} from "../../../services/skills.service";
 import {useUiStore} from "../../../store/useUiStore";
+import {useAuthStore} from "../../../store/useAuthStore";
+import {useAvatarStore} from "../../../store/useAvatarStore";
 import Alert from "../../../components/ui/Alert/Alert";
 import {getErrorMessage} from "../../../utils/errors";
 
@@ -22,6 +24,11 @@ const EmployeeEdit = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const pushToast = useUiStore((state) => state.pushToast);
+  const currentUser = useAuthStore((state) => state.user);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const refreshToken = useAuthStore((state) => state.refreshToken);
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const setAvatarOverride = useAvatarStore((state) => state.setAvatarOverride);
 
   useEffect(() => {
     listRoles({limit: 50})
@@ -72,7 +79,18 @@ const EmployeeEdit = () => {
       setLoading(true);
       await updateUser(id, payload);
       if (avatarFile) {
-        await uploadUserAvatar(id, avatarFile);
+        const response = await uploadUserAvatar(id, avatarFile);
+        const updated = response.data.data;
+        if (updated?.avatar) {
+          setAvatarOverride(id, updated.avatar);
+          if (currentUser && String(currentUser.id || currentUser._id) === String(id)) {
+            setAuth({
+              user: {...currentUser, avatar: updated.avatar},
+              accessToken,
+              refreshToken,
+            });
+          }
+        }
       }
       pushToast({type: "success", message: "Employee updated"});
       navigate("/employees");

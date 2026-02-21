@@ -118,7 +118,7 @@ export const uploadAvatar = asyncHandler(async (req, res) => {
   if (!req.file) throw new ApiError(400, "Avatar image is required");
 
   const user = await userService.updateUser(req.params.id, {
-    avatar: `/uploads/avatars/${req.file.filename}`,
+    avatar: `/uploads/employees/${req.file.filename}`,
   });
   if (!user) throw new ApiError(404, "User not found");
 

@@ -1,4 +1,4 @@
-﻿import {useEffect, useMemo, useState} from "react";
+﻿import {useCallback, useEffect, useMemo, useState} from "react";
 import PageHeader from "../../../components/ui/PageHeader/PageHeader";
 import DataTable from "../../../components/tables/DataTable/DataTable";
 import Badge from "../../../components/ui/Badge/Badge";
@@ -6,12 +6,13 @@ import Button from "../../../components/ui/Button/Button";
 import Modal from "../../../components/ui/Modal/Modal";
 import Alert from "../../../components/ui/Alert/Alert";
 import Avatar from "../../../components/ui/Avatar/Avatar";
+import {useAvatarStore} from "../../../store/useAvatarStore";
 import {getMe} from "../../../services/auth.service";
 import {listAllocationsByEmployee, listAllocationsByProject} from "../../../services/allocations.service";
 import {listNotifications} from "../../../services/notifications.service";
 import {listAvailability} from "../../../services/availability.service";
 import {listMyTasks} from "../../../services/tasks.service";
-import {createProjectRequest, listMyProjectRequests} from "../../../services/projectRequests.service";
+import {createProjectExitRequest, listMyProjectRequests} from "../../../services/projectRequests.service";
 import {useUiStore} from "../../../store/useUiStore";
 import {getErrorMessage} from "../../../utils/errors";
 
@@ -29,6 +30,7 @@ const EmployeeHome = () => {
   const [reason, setReason] = useState("");
   const [targetAllocation, setTargetAllocation] = useState(null);
   const pushToast = useUiStore((state) => state.pushToast);
+  const avatarOverrides = useAvatarStore((state) => state.overrides);
 
   useEffect(() => {
     getMe()
@@ -38,18 +40,20 @@ const EmployeeHome = () => {
 
   const userId = user?.id || user?._id;
 
-  const fetchRequests = () => {
+  const fetchRequests = useCallback(() => {
     if (!userId) return;
     listMyProjectRequests({limit: 50})
       .then((res) => setRequests(res.data.items || []))
       .catch(() => setRequests([]));
-  };
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
     listAllocationsByEmployee(userId)
       .then((res) => {
-        setAllocations(res.data.items || []);
+        const items = res.data.items || [];
+        const today = new Date();
+        setAllocations(items.filter((allocation) => !allocation.endDate || new Date(allocation.endDate) >= today));
       })
       .catch(() => setAllocations([]));
 
@@ -66,7 +70,7 @@ const EmployeeHome = () => {
       .catch(() => setTasks([]));
 
     fetchRequests();
-  }, [userId]);
+  }, [fetchRequests, userId]);
 
   useEffect(() => {
     const projectIds = Array.from(
@@ -142,12 +146,12 @@ const EmployeeHome = () => {
     try {
       setRequestLoading(true);
       setRequestError("");
-      await createProjectRequest({
+      await createProjectExitRequest({
         projectId: targetAllocation.projectId?._id || targetAllocation.projectId,
         allocationId: targetAllocation._id,
         reason: trimmedReason,
       });
-      pushToast({type: "success", message: "Leave request submitted"});
+      pushToast({type: "success", message: "Exit request submitted"});
       closeRequestModal();
       fetchRequests();
     } catch (err) {
@@ -163,11 +167,11 @@ const EmployeeHome = () => {
     {key: "allocation", label: "Allocation", render: (row) => `${row.allocationPercent}%`},
     {
       key: "request",
-      label: "Leave status",
+      label: "Exit status",
       render: (row) => {
         const request = requestByAllocationId.get(String(row._id));
         if (!request) {
-          return <Badge tone="neutral">Active</Badge>;
+          return <Badge tone="neutral">None</Badge>;
         }
         const tone =
           request.status === "approved"
@@ -193,13 +197,13 @@ const EmployeeHome = () => {
         if (request?.status === "rejected") {
           return (
             <Button variant="outline" onClick={() => openRequestModal(row)}>
-              Request again
+              Request exit
             </Button>
           );
         }
         return (
           <Button variant="primary" onClick={() => openRequestModal(row)}>
-            Request leave
+            Request exit
           </Button>
         );
       },
@@ -212,7 +216,11 @@ const EmployeeHome = () => {
       label: "Team member",
       render: (row) => (
         <div className="flex items-center gap-2">
-          <Avatar src={row.employeeId?.avatar} name={row.employeeId?.name} size="sm" />
+          <Avatar
+            src={avatarOverrides[row.employeeId?._id] || row.employeeId?.avatar}
+            name={row.employeeId?.name}
+            size="sm"
+          />
           <span>{row.employeeId?.name || "-"}</span>
         </div>
       ),
@@ -245,7 +253,7 @@ const EmployeeHome = () => {
   return (
     <section className="flex flex-col gap-6">
       <PageHeader eyebrow="My workspace" title="My Projects & Assignments" />
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="card">
           <p className="text-xs uppercase tracking-[0.3em] text-secondary">Availability</p>
           <p className="mt-3 text-2xl font-semibold">
@@ -317,7 +325,7 @@ const EmployeeHome = () => {
 
       <Modal
         open={isModalOpen}
-        title="Request leave from project"
+        title="Request exit from project"
         onClose={closeRequestModal}
         footer={
           <>
@@ -337,7 +345,7 @@ const EmployeeHome = () => {
           </div>
           <textarea
             className="ghost-input min-h-[120px]"
-            placeholder="Reason for leaving this project"
+            placeholder="Reason for exiting this project"
             value={reason}
             onChange={(event) => setReason(event.target.value)}
           />

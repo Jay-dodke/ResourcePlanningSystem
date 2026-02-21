@@ -8,10 +8,27 @@ const api = axios.create({
   baseURL: `${baseUrl}${basePath}`,
 });
 
+const getStoredAuth = () => {
+  if (typeof window === "undefined") return {accessToken: "", refreshToken: ""};
+  try {
+    const raw = localStorage.getItem("rps-auth");
+    if (!raw) return {accessToken: "", refreshToken: ""};
+    const parsed = JSON.parse(raw);
+    return {
+      accessToken: parsed?.state?.accessToken || "",
+      refreshToken: parsed?.state?.refreshToken || "",
+    };
+  } catch {
+    return {accessToken: "", refreshToken: ""};
+  }
+};
+
 api.interceptors.request.use((config) => {
   const {accessToken} = useAuthStore.getState();
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+  const stored = getStoredAuth();
+  const token = accessToken || stored.accessToken;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -23,11 +40,13 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
       const {refreshToken} = useAuthStore.getState();
-      if (refreshToken) {
+      const stored = getStoredAuth();
+      const activeRefreshToken = refreshToken || stored.refreshToken;
+      if (activeRefreshToken) {
         try {
           const refreshResponse = await axios.post(
             `${baseUrl}${basePath}/auth/refresh`,
-            {refreshToken}
+            {refreshToken: activeRefreshToken}
           );
           const {accessToken: newAccessToken, refreshToken: newRefreshToken, user} =
             refreshResponse.data;

@@ -7,3 +7,10 @@ export const createProjectRequestSchema = z.object({
     reason: z.string().min(5),
   }),
 });
+
+export const exitProjectRequestSchema = z.object({
+  body: z.object({
+    projectId: z.string().min(2),
+    reason: z.string().min(5),
+  }),
+});

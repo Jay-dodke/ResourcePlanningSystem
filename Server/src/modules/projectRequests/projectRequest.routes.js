@@ -4,7 +4,7 @@ import {requireAuth} from "../../middlewares/auth.middleware.js";
 import {requirePermissions} from "../../middlewares/role.middleware.js";
 import {PERMISSIONS} from "../../utils/permissions.js";
 import * as requestController from "./projectRequest.controller.js";
-import {createProjectRequestSchema} from "./projectRequest.validation.js";
+import {createProjectRequestSchema, exitProjectRequestSchema} from "./projectRequest.validation.js";
 
 const router = express.Router();
 
@@ -24,6 +24,12 @@ router.post(
   requirePermissions(PERMISSIONS.PROJECT_REQUESTS_WRITE),
   validate(createProjectRequestSchema),
   requestController.createProjectRequest
+);
+router.post(
+  "/exit",
+  requirePermissions(PERMISSIONS.PROJECT_REQUESTS_WRITE),
+  validate(exitProjectRequestSchema),
+  requestController.createProjectExitRequest
 );
 router.put(
   "/:id/approve",

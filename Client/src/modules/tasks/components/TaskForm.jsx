@@ -44,7 +44,7 @@ const TaskForm = ({initialValues, onSubmit, loading}) => {
 
   return (
     <form className="panel p-6" onSubmit={handleSubmit}>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="text-xs uppercase tracking-[0.2em] text-secondary">Title</label>
           <input className="ghost-input mt-2" value={form.title} onChange={updateField("title")} />
@@ -62,7 +62,7 @@ const TaskForm = ({initialValues, onSubmit, loading}) => {
           </select>
           {errors.projectId ? <p className="mt-1 text-xs text-danger">{errors.projectId}</p> : null}
         </div>
-        <div className="md:col-span-2">
+        <div className="sm:col-span-2">
           <label className="text-xs uppercase tracking-[0.2em] text-secondary">Description</label>
           <textarea
             className="ghost-input mt-2 min-h-[120px]"

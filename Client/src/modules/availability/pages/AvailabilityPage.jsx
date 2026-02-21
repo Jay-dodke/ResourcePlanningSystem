@@ -1,4 +1,4 @@
-﻿import {useEffect, useState} from "react";
+﻿import {useCallback, useEffect, useRef, useState} from "react";
 import {listAvailability} from "../../../services/availability.service";
 import DataTable from "../../../components/tables/DataTable/DataTable";
 import PageHeader from "../../../components/ui/PageHeader/PageHeader";
@@ -7,6 +7,7 @@ import Badge from "../../../components/ui/Badge/Badge";
 import Alert from "../../../components/ui/Alert/Alert";
 import {getErrorMessage} from "../../../utils/errors";
 import Avatar from "../../../components/ui/Avatar/Avatar";
+import {useAvatarStore} from "../../../store/useAvatarStore";
 
 const AvailabilityPage = () => {
   const [availability, setAvailability] = useState([]);
@@ -18,10 +19,17 @@ const AvailabilityPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const avatarOverrides = useAvatarStore((state) => state.overrides);
+  const filtersRef = useRef(filters);
 
-  const fetchAvailability = (overrideFilters) => {
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
+
+  const fetchAvailability = useCallback((overrideFilters) => {
     setLoading(true);
-    const activeFilters = overrideFilters || filters;
+    const activeFilters = overrideFilters || filtersRef.current;
     const params = {
       limit: 20,
       search: activeFilters.search || undefined,
@@ -40,11 +48,11 @@ const AvailabilityPage = () => {
         setError(getErrorMessage(err, "Unable to load availability"));
       })
       .finally(() => setLoading(false));
-  };
+  }, []);
 
   useEffect(() => {
     fetchAvailability();
-  }, []);
+  }, [fetchAvailability]);
 
   const updateFilter = (field) => (event) => {
     setFilters((prev) => ({...prev, [field]: event.target.value}));
@@ -56,7 +64,11 @@ const AvailabilityPage = () => {
       label: "Employee",
       render: (row) => (
         <div className="flex items-center gap-2">
-          <Avatar src={row.employeeId?.avatar} name={row.employeeId?.name} size="sm" />
+          <Avatar
+            src={avatarOverrides[row.employeeId?._id] || row.employeeId?.avatar}
+            name={row.employeeId?.name}
+            size="sm"
+          />
           <span>{row.employeeId?.name}</span>
         </div>
       ),
@@ -95,7 +107,7 @@ const AvailabilityPage = () => {
         action={<Button variant="primary">Update capacity</Button>}
       />
       <div className="panel p-4">
-        <div className="grid gap-3 md:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <input
             className="ghost-input"
             placeholder="Search by name or email"
@@ -121,7 +133,7 @@ const AvailabilityPage = () => {
             <option value="overloaded">Overloaded</option>
           </select>
         </div>
-        <div className="mt-3 flex gap-3">
+        <div className="mt-3 flex flex-wrap gap-3">
           <Button variant="outline" onClick={fetchAvailability}>
             Apply filters
           </Button>

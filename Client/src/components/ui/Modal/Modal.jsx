@@ -10,7 +10,7 @@ const Modal = ({open, title, onClose, children, footer, hideClose = false, disab
         onClick={disableBackdropClose ? undefined : onClose}
       />
       <div
-        className="relative w-full max-w-lg rounded-2xl border border-default surface-card p-6 shadow-2xl"
+        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-default surface-card p-6 shadow-2xl"
         role="dialog"
         aria-modal="true"
       >

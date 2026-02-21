@@ -18,11 +18,13 @@ import leaveRoutes from "../modules/leaves/leave.routes.js";
 import analyticsRoutes from "../modules/analytics/analytics.routes.js";
 import searchRoutes from "../modules/search/search.routes.js";
 import projectRequestRoutes from "../modules/projectRequests/projectRequest.routes.js";
+import planningRoutes from "../modules/planning/planning.routes.js";
 
 const router = express.Router();
 
 router.use("/auth", authRoutes);
 router.use("/users", userRoutes);
+router.use("/employees", userRoutes);
 router.use("/roles", roleRoutes);
 router.use("/projects", projectRoutes);
 router.use("/allocations", allocationRoutes);
@@ -40,5 +42,6 @@ router.use("/leaves", leaveRoutes);
 router.use("/analytics", analyticsRoutes);
 router.use("/search", searchRoutes);
 router.use("/project-requests", projectRequestRoutes);
+router.use("/me", planningRoutes);
 
 export default router;

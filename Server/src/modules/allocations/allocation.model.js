@@ -6,6 +6,19 @@ const allocationSchema = new mongoose.Schema(
     projectId: {type: mongoose.Schema.Types.ObjectId, ref: "Project", required: true},
     role: {type: String, required: true},
     allocationPercent: {type: Number, required: true, min: 0, max: 100},
+    segments: {
+      type: [
+        new mongoose.Schema(
+          {
+            startDate: {type: Date, required: true},
+            endDate: {type: Date, required: true},
+            allocationPercent: {type: Number, required: true, min: 0, max: 100},
+          },
+          {_id: false}
+        ),
+      ],
+      default: [],
+    },
     billable: {type: Boolean, default: true},
     startDate: {type: Date, required: true},
     endDate: {type: Date, required: true},

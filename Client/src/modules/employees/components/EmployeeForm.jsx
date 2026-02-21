@@ -176,7 +176,6 @@ const EmployeeForm = ({
   };
 
   const selectedSkillNames = new Set(form.skills.map((skill) => skill.name));
-  const previewIsBlob = previewUrl.startsWith("blob:");
 
   return (
     <form className="panel space-y-8 p-6" onSubmit={handleSubmit} autoComplete="off">
@@ -186,15 +185,9 @@ const EmployeeForm = ({
           <h3 className="text-lg font-semibold text-primary">Employee profile</h3>
           <p className="text-sm text-secondary">Capture the employee&apos;s core details and photo.</p>
         </div>
-        <div className="grid gap-6 md:grid-cols-[auto,1fr,1fr] md:items-end">
+        <div className="grid gap-6 sm:grid-cols-[auto,1fr] lg:grid-cols-[auto,1fr,1fr] sm:items-end">
           <div className="flex flex-col gap-3">
-            {previewIsBlob ? (
-              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-default bg-secondary">
-                <img src={previewUrl} alt={form.name} className="h-full w-full object-cover" />
-              </div>
-            ) : (
-              <Avatar src={previewUrl} name={form.name} size="xl" />
-            )}
+            <Avatar src={previewUrl} name={form.name} size="xl" />
             <div>
               <input
                 type="file"
@@ -236,7 +229,7 @@ const EmployeeForm = ({
           <h3 className="text-lg font-semibold text-primary">Role & reporting</h3>
           <p className="text-sm text-secondary">Define access level, department, and manager.</p>
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <label className="text-xs uppercase tracking-[0.2em] text-secondary">Role</label>
             <select className="ghost-input mt-2" value={form.roleId} onChange={updateField("roleId")}>
@@ -296,7 +289,7 @@ const EmployeeForm = ({
           <h3 className="text-lg font-semibold text-primary">Position & skills</h3>
           <p className="text-sm text-secondary">Track designation, skills, and status.</p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="text-xs uppercase tracking-[0.2em] text-secondary">Designation</label>
             <input
@@ -314,7 +307,7 @@ const EmployeeForm = ({
               <option value="suspended">Suspended</option>
             </select>
           </div>
-          <div className="md:col-span-2">
+          <div className="sm:col-span-2">
             <label className="text-xs uppercase tracking-[0.2em] text-secondary">Skills</label>
             <div className="mt-2 rounded-2xl border border-default bg-secondary p-4">
               <input
@@ -372,8 +365,8 @@ const EmployeeForm = ({
           <h3 className="text-lg font-semibold text-primary">Credentials</h3>
           <p className="text-sm text-secondary">Set a password or generate a temporary one.</p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="md:col-span-2">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
             <div className="flex flex-wrap gap-4">
               <label className="flex items-center gap-2 text-sm text-primary">
                 <input
@@ -395,9 +388,9 @@ const EmployeeForm = ({
               </label>
             </div>
           </div>
-          <div className="md:col-span-2">
+          <div className="sm:col-span-2">
             <label className="text-xs uppercase tracking-[0.2em] text-secondary">Password</label>
-            <div className="mt-2 flex flex-col gap-2 md:flex-row">
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
               <input
                 className="ghost-input flex-1"
                 type={showPassword ? "text" : "password"}
@@ -407,7 +400,7 @@ const EmployeeForm = ({
                 readOnly={passwordMode === "auto" && !form._id}
                 autoComplete="new-password"
               />
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="ghost" onClick={() => setShowPassword((prev) => !prev)}>
                   {showPassword ? "Hide" : "Show"}
                 </Button>

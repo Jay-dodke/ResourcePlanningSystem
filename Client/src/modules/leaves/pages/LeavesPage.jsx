@@ -92,7 +92,7 @@ const LeavesPage = () => {
       label: "Actions",
       render: (row) =>
         isAdmin ? (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => updateStatus(row._id, "approved")}>Approve</Button>
             <Button variant="ghost" onClick={() => updateStatus(row._id, "rejected")}>Reject</Button>
           </div>
@@ -105,23 +105,25 @@ const LeavesPage = () => {
   return (
     <section className="flex flex-col gap-4">
       <PageHeader eyebrow="People" title="Leave requests" />
-      <form className="panel p-5 grid gap-3 md:grid-cols-4" onSubmit={submitLeave}>
-        <select className="ghost-input" value={form.type} onChange={updateField("type")}>
-          <option value="annual">Annual</option>
-          <option value="sick">Sick</option>
-          <option value="unpaid">Unpaid</option>
-          <option value="other">Other</option>
-        </select>
-        <input className="ghost-input" type="date" value={form.startDate} onChange={updateField("startDate")} />
-        <input className="ghost-input" type="date" value={form.endDate} onChange={updateField("endDate")} />
-        <Button type="submit" variant="primary">Request leave</Button>
-        <textarea
-          className="ghost-input md:col-span-4"
-          placeholder="Reason"
-          value={form.reason}
-          onChange={updateField("reason")}
-        />
-      </form>
+      {isAdmin ? (
+        <form className="panel p-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" onSubmit={submitLeave}>
+          <select className="ghost-input" value={form.type} onChange={updateField("type")}>
+            <option value="annual">Annual</option>
+            <option value="sick">Sick</option>
+            <option value="unpaid">Unpaid</option>
+            <option value="other">Other</option>
+          </select>
+          <input className="ghost-input" type="date" value={form.startDate} onChange={updateField("startDate")} />
+          <input className="ghost-input" type="date" value={form.endDate} onChange={updateField("endDate")} />
+          <Button type="submit" variant="primary">Request leave</Button>
+          <textarea
+            className="ghost-input sm:col-span-2 lg:col-span-4"
+            placeholder="Reason"
+            value={form.reason}
+            onChange={updateField("reason")}
+          />
+        </form>
+      ) : null}
       <DataTable columns={columns} rows={leaves} emptyState={loading ? "Loading leaves..." : "No leave requests."} />
       {error ? <Alert tone="error">{error}</Alert> : null}
     </section>

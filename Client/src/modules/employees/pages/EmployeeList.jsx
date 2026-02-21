@@ -1,4 +1,4 @@
-﻿import {useEffect, useState} from "react";
+﻿import {useCallback, useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {listUsers, updateUser} from "../../../services/users.service";
 import {listAvailability} from "../../../services/availability.service";
@@ -9,6 +9,7 @@ import Badge from "../../../components/ui/Badge/Badge";
 import Alert from "../../../components/ui/Alert/Alert";
 import {getErrorMessage} from "../../../utils/errors";
 import {useUiStore} from "../../../store/useUiStore";
+import {useAvatarStore} from "../../../store/useAvatarStore";
 import Avatar from "../../../components/ui/Avatar/Avatar";
 
 const EmployeeList = () => {
@@ -20,10 +21,17 @@ const EmployeeList = () => {
   const [availabilityMap, setAvailabilityMap] = useState({});
   const [error, setError] = useState("");
   const pushToast = useUiStore((state) => state.pushToast);
+  const avatarOverrides = useAvatarStore((state) => state.overrides);
+  const searchRef = useRef(search);
 
-  const fetchEmployees = () => {
+  useEffect(() => {
+    searchRef.current = search;
+  }, [search]);
+
+
+  const fetchEmployees = useCallback(() => {
     setLoading(true);
-    Promise.all([listUsers({limit: 20, search}), listAvailability({limit: 200})])
+    Promise.all([listUsers({limit: 20, search: searchRef.current}), listAvailability({limit: 200})])
       .then(([usersRes, availabilityRes]) => {
         setError("");
         const items = usersRes.data.items || [];
@@ -42,11 +50,11 @@ const EmployeeList = () => {
         setError(getErrorMessage(err, "Unable to load employees"));
       })
       .finally(() => setLoading(false));
-  };
+  }, []);
 
   useEffect(() => {
     fetchEmployees();
-  }, []);
+  }, [fetchEmployees]);
 
   const toggleStatus = async (employee) => {
     const nextStatus = employee.status === "active" ? "inactive" : "active";
@@ -68,7 +76,7 @@ const EmployeeList = () => {
       label: "Name",
       render: (row) => (
         <div className="flex items-center gap-3">
-          <Avatar src={row.avatar} name={row.name} size="md" />
+          <Avatar src={avatarOverrides[row._id] || row.avatar} name={row.name} size="md" />
           <div>
             <p className="text-sm font-semibold text-primary">{row.name}</p>
             <p className="text-xs text-secondary">{row.email}</p>
@@ -113,7 +121,7 @@ const EmployeeList = () => {
       key: "actions",
       label: "Actions",
       render: (row) => (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => navigate(`/employees/${row._id}`)}>
             View
           </Button>
@@ -144,14 +152,14 @@ const EmployeeList = () => {
         }
       />
       <div className="panel p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <input
-            className="ghost-input md:max-w-xs"
+            className="ghost-input sm:max-w-xs"
             placeholder="Search by name or email"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button variant="outline" onClick={fetchEmployees}>
               Search
             </Button>

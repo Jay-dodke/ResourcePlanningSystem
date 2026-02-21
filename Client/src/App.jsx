@@ -34,6 +34,7 @@ import AuditPage from "./modules/audit/pages/AuditPage";
 import SearchPage from "./modules/search/pages/SearchPage";
 import MyTeam from "./modules/employee/pages/MyTeam";
 import RequestsPage from "./modules/requests/pages/RequestsPage";
+import EmployeeWorkspace from "./modules/employee/pages/EmployeeWorkspace";
 import {PERMISSIONS} from "./utils/permissions";
 
 function App() {
@@ -270,6 +271,14 @@ function App() {
             element={
               <RequirePermission permission={PERMISSIONS.DASHBOARD_READ}>
                 <EmployeeHome />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/my-planning"
+            element={
+              <RequirePermission permission={PERMISSIONS.DASHBOARD_READ}>
+                <EmployeeWorkspace />
               </RequirePermission>
             }
           />

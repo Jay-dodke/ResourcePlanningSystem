@@ -2,6 +2,11 @@ import {asyncHandler} from "../../utils/asyncHandler.js";
 import {ApiError} from "../../utils/apiError.js";
 import {getQuery} from "../../utils/request.js";
 import * as allocationService from "./allocation.service.js";
+import {
+  getAllocationTimeline,
+  getAllocationConflicts,
+  getFutureAllocations,
+} from "./allocation.planning.service.js";
 import * as availabilityService from "../availability/availability.service.js";
 import * as auditService from "../audit/audit.service.js";
 
@@ -45,6 +50,41 @@ export const listAllocationsByProject = asyncHandler(async (req, res) => {
     projectId: query.projectId,
   });
   res.json({success: true, ...result});
+});
+
+export const allocationTimeline = asyncHandler(async (req, res) => {
+  const query = getQuery(req);
+  const data = await getAllocationTimeline({
+    employeeId: query.employeeId,
+    projectId: query.projectId,
+    from: query.from,
+    to: query.to,
+    granularity: query.granularity || "week",
+  });
+  res.json({success: true, data});
+});
+
+export const allocationConflicts = asyncHandler(async (req, res) => {
+  const query = getQuery(req);
+  const data = await getAllocationConflicts({
+    employeeId: query.employeeId,
+    from: query.from,
+    to: query.to,
+    granularity: query.granularity || "week",
+  });
+  res.json({success: true, data});
+});
+
+export const allocationFuture = asyncHandler(async (req, res) => {
+  const query = getQuery(req);
+  const items = await getFutureAllocations({
+    employeeId: query.employeeId,
+    projectId: query.projectId,
+    from: query.from,
+    to: query.to,
+    limit: Number(query.limit) || 50,
+  });
+  res.json({success: true, data: items});
 });
 
 export const getAllocation = asyncHandler(async (req, res) => {

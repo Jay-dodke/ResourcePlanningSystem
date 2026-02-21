@@ -1,4 +1,4 @@
-﻿import {useEffect, useMemo, useState} from "react";
+﻿import {useCallback, useEffect, useMemo, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import PageHeader from "../../../components/ui/PageHeader/PageHeader";
 import Button from "../../../components/ui/Button/Button";
@@ -16,6 +16,7 @@ import {listAuditLogs} from "../../../services/audit.service";
 import {listProjects} from "../../../services/projects.service";
 import {useUiStore} from "../../../store/useUiStore";
 import {useAuthStore} from "../../../store/useAuthStore";
+import {useAvatarStore} from "../../../store/useAvatarStore";
 import {getErrorMessage} from "../../../utils/errors";
 
 const EmployeeProfile = () => {
@@ -26,6 +27,8 @@ const EmployeeProfile = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const refreshToken = useAuthStore((state) => state.refreshToken);
   const setAuth = useAuthStore((state) => state.setAuth);
+  const avatarOverrides = useAvatarStore((state) => state.overrides);
+  const setAvatarOverride = useAvatarStore((state) => state.setAvatarOverride);
   const currentRole = currentUser?.role || currentUser?.roleId?.name || currentUser?.roleId;
   const isAdmin = currentRole?.toLowerCase() === "admin";
 
@@ -63,7 +66,7 @@ const EmployeeProfile = () => {
   const [resetResult, setResetResult] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
 
-  const fetchProfile = () => {
+  const fetchProfile = useCallback(() => {
     setLoading(true);
     Promise.all([
       getUser(id),
@@ -88,11 +91,11 @@ const EmployeeProfile = () => {
         setError(getErrorMessage(err, "Unable to load employee profile"));
       })
       .finally(() => setLoading(false));
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchProfile();
-  }, [id]);
+  }, [fetchProfile]);
 
   useEffect(() => {
     if (availability?.capacityPercent != null) {
@@ -107,6 +110,9 @@ const EmployeeProfile = () => {
       setAvatarUploading(true);
       const response = await uploadUserAvatar(id, file);
       const updated = response.data.data;
+      if (updated?.avatar) {
+        setAvatarOverride(id, updated.avatar);
+      }
       if (currentUser && String(currentUser.id || currentUser._id) === String(id)) {
         setAuth({
           user: {...currentUser, avatar: updated?.avatar || currentUser.avatar},
@@ -287,6 +293,8 @@ const EmployeeProfile = () => {
     return <Alert tone="error">Employee not found.</Alert>;
   }
 
+  const avatarSrc = avatarOverrides[user?._id] || user?.avatar;
+
   return (
     <section className="flex flex-col gap-6">
       <PageHeader
@@ -303,7 +311,7 @@ const EmployeeProfile = () => {
       <div className="panel p-6">
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div className="flex items-center gap-4">
-            <Avatar src={user.avatar} name={user.name} size="xl" />
+            <Avatar src={avatarSrc} name={user.name} size="xl" />
             <div>
               <h3 className="text-xl font-semibold text-primary">{user.name}</h3>
               <p className="text-sm text-secondary">{user.email}</p>
@@ -339,7 +347,7 @@ const EmployeeProfile = () => {
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-4">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="card">
             <p className="text-xs uppercase tracking-[0.3em] text-secondary">Availability</p>
             <p className="mt-3 text-2xl font-semibold">

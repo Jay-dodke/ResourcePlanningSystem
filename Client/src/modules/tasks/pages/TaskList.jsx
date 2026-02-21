@@ -1,4 +1,4 @@
-﻿import {useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {listTasks} from "../../../services/tasks.service";
 import DataTable from "../../../components/tables/DataTable/DataTable";
@@ -8,6 +8,8 @@ import Badge from "../../../components/ui/Badge/Badge";
 import Alert from "../../../components/ui/Alert/Alert";
 import {getErrorMessage} from "../../../utils/errors";
 import Avatar from "../../../components/ui/Avatar/Avatar";
+import {useAuthStore} from "../../../store/useAuthStore";
+import {useAvatarStore} from "../../../store/useAvatarStore";
 
 const TaskList = () => {
   const navigate = useNavigate();
@@ -15,9 +17,18 @@ const TaskList = () => {
   const [filters, setFilters] = useState({search: "", status: ""});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const user = useAuthStore((state) => state.user);
+  const roleName = user?.role || user?.roleId?.name || user?.roleId;
+  const isAdmin = roleName?.toLowerCase() === "admin";
+  const avatarOverrides = useAvatarStore((state) => state.overrides);
+  const filtersRef = useRef(filters);
 
-  const fetchTasks = (override) => {
-    const activeFilters = override || filters;
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
+  const fetchTasks = useCallback((override) => {
+    const activeFilters = override || filtersRef.current;
     setLoading(true);
     listTasks({
       limit: 20,
@@ -33,11 +44,11 @@ const TaskList = () => {
         setError(getErrorMessage(err, "Unable to load tasks"));
       })
       .finally(() => setLoading(false));
-  };
+  }, []);
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [fetchTasks]);
 
   const updateFilter = (field) => (event) => {
     setFilters((prev) => ({...prev, [field]: event.target.value}));
@@ -52,7 +63,11 @@ const TaskList = () => {
       render: (row) =>
         row.assigneeId ? (
           <div className="flex items-center gap-2">
-            <Avatar src={row.assigneeId?.avatar} name={row.assigneeId?.name} size="sm" />
+            <Avatar
+              src={avatarOverrides[row.assigneeId?._id] || row.assigneeId?.avatar}
+              name={row.assigneeId?.name}
+              size="sm"
+            />
             <span>{row.assigneeId?.name}</span>
           </div>
         ) : (
@@ -77,11 +92,14 @@ const TaskList = () => {
     {
       key: "actions",
       label: "Actions",
-      render: (row) => (
-        <Button variant="ghost" onClick={() => navigate(`/tasks/${row._id}/edit`)}>
-          Edit
-        </Button>
-      ),
+      render: (row) =>
+        isAdmin ? (
+          <Button variant="ghost" onClick={() => navigate(`/tasks/${row._id}/edit`)}>
+            Edit
+          </Button>
+        ) : (
+          "-"
+        ),
     },
   ];
 
@@ -91,11 +109,13 @@ const TaskList = () => {
         eyebrow="Delivery"
         title="Tasks"
         action={
-          <Button variant="primary" onClick={() => navigate("/tasks/new")}>Create task</Button>
+          isAdmin ? (
+            <Button variant="primary" onClick={() => navigate("/tasks/new")}>Create task</Button>
+          ) : null
         }
       />
       <div className="panel p-4">
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <input
             className="ghost-input"
             placeholder="Search tasks"
@@ -109,7 +129,7 @@ const TaskList = () => {
             <option value="blocked">Blocked</option>
             <option value="done">Done</option>
           </select>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button variant="outline" onClick={() => fetchTasks(filters)}>
               Apply filters
             </Button>
@@ -137,6 +157,3 @@ const TaskList = () => {
 };
 
 export default TaskList;
-
-
-

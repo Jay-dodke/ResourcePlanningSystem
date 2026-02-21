@@ -29,6 +29,25 @@ export const createProjectRequest = asyncHandler(async (req, res) => {
   res.status(201).json({success: true, data: request});
 });
 
+export const createProjectExitRequest = asyncHandler(async (req, res) => {
+  const {projectId, reason} = req.validated.body;
+
+  const request = await requestService.createProjectRequest({
+    employeeId: req.user?.id,
+    projectId,
+    reason,
+  });
+
+  await auditService.logAction({
+    actorId: req.user?.id,
+    action: "projectRequests.exit",
+    entity: "ProjectRequest",
+    entityId: request._id,
+  });
+
+  res.status(201).json({success: true, data: request});
+});
+
 export const listProjectRequests = asyncHandler(async (req, res) => {
   if (!isAdmin(req.user)) throw new ApiError(403, "Forbidden");
   const result = await requestService.listProjectRequests(getQuery(req));
@@ -56,15 +75,16 @@ export const approveProjectRequest = asyncHandler(async (req, res) => {
   });
 
   if (request.allocationId) {
-    await allocationService.deleteAllocation(request.allocationId);
+    const allocationId = request.allocationId?._id || request.allocationId;
+    await allocationService.closeAllocation(allocationId, new Date(Date.now() - 1000));
   }
 
   await availabilityService.recalculateAvailability(request.employeeId?._id || request.employeeId);
 
   await notificationService.createNotification({
     userId: request.employeeId?._id || request.employeeId,
-    title: "Project leave approved",
-    message: `Your request to leave ${request.projectId?.name || "the project"} was approved.`,
+    title: "Project exit approved",
+    message: `Your request to exit ${request.projectId?.name || "the project"} was approved.`,
     type: "success",
     read: false,
   });
@@ -93,8 +113,8 @@ export const rejectProjectRequest = asyncHandler(async (req, res) => {
 
   await notificationService.createNotification({
     userId: request.employeeId?._id || request.employeeId,
-    title: "Project leave rejected",
-    message: `Your request to leave ${request.projectId?.name || "the project"} was rejected.`,
+    title: "Project exit rejected",
+    message: `Your request to exit ${request.projectId?.name || "the project"} was rejected.`,
     type: "warning",
     read: false,
   });

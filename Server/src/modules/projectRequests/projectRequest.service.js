@@ -15,6 +15,10 @@ export const createProjectRequest = async ({employeeId, projectId, allocationId,
     throw new ApiError(404, "Allocation not found for this project");
   }
 
+  if (allocation.endDate && allocation.endDate < new Date()) {
+    throw new ApiError(409, "This allocation has already ended");
+  }
+
   const existing = await ProjectRequest.findOne({
     employeeId,
     projectId,

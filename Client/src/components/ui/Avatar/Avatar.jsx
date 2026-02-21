@@ -1,3 +1,4 @@
+import {useMemo, useState} from "react";
 import clsx from "clsx";
 import {resolveAssetUrl} from "../../../utils/assets";
 
@@ -9,15 +10,19 @@ const sizes = {
 };
 
 const Avatar = ({src, name = "", size = "md"}) => {
-  const safeSrc = resolveAssetUrl(src || "");
-  const initials = name
-    ? name
-        .split(" ")
-        .map((part) => part[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()
-    : "";
+  const safeSrc = resolveAssetUrl(String(src || "").trim());
+  const [errorSrc, setErrorSrc] = useState("");
+  const initials = useMemo(() => {
+    if (!name) return "";
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  }, [name]);
+
+  const showFallback = !safeSrc || errorSrc === safeSrc;
 
   return (
     <div
@@ -26,8 +31,15 @@ const Avatar = ({src, name = "", size = "md"}) => {
         sizes[size] || sizes.md
       )}
     >
-      {safeSrc ? (
-        <img src={safeSrc} alt={name} className="h-full w-full object-cover" />
+      {!showFallback ? (
+        <img
+          src={safeSrc}
+          alt={name}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+          onError={() => setErrorSrc(safeSrc)}
+        />
       ) : (
         <span className="font-semibold">{initials}</span>
       )}

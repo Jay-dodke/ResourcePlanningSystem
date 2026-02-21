@@ -3,12 +3,12 @@ import path from "path";
 import crypto from "crypto";
 import multer from "multer";
 
-const avatarDir = path.resolve(process.cwd(), "uploads", "avatars");
-fs.mkdirSync(avatarDir, {recursive: true});
+const employeeAvatarDir = path.resolve(process.cwd(), "uploads", "employees");
+fs.mkdirSync(employeeAvatarDir, {recursive: true});
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, avatarDir);
+    cb(null, employeeAvatarDir);
   },
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname || "").toLowerCase();
@@ -28,5 +28,5 @@ const fileFilter = (_req, file, cb) => {
 export const avatarUpload = multer({
   storage,
   fileFilter,
-  limits: {fileSize: 2 * 1024 * 1024},
+  limits: {fileSize: 5 * 1024 * 1024},
 });

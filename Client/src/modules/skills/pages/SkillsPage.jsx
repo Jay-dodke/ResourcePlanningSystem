@@ -73,7 +73,7 @@ const SkillsPage = () => {
   return (
     <section className="flex flex-col gap-4">
       <PageHeader eyebrow="People" title="Skills & competency" />
-      <form className="panel p-5 grid gap-3 md:grid-cols-3" onSubmit={handleSubmit}>
+      <form className="panel p-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" onSubmit={handleSubmit}>
         <input
           className="ghost-input"
           placeholder="Skill name"

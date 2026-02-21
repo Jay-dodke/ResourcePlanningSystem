@@ -37,7 +37,7 @@ const AnalyticsPage = () => {
   return (
     <section className="flex flex-col gap-6">
       <PageHeader eyebrow="Insights" title="Resource analytics" />
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 min-[1440px]:grid-cols-4">
         <Card title="Total employees" value={stats.totalEmployees} meta="Active workforce" />
         <Card title="Active projects" value={stats.activeProjects} meta="Delivery in motion" />
         <Card title="Open tasks" value={stats.openTasks} meta="Backlog health" />

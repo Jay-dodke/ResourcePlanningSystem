@@ -95,7 +95,7 @@ const TimesheetsPage = () => {
       label: "Actions",
       render: (row) =>
         isAdmin ? (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => approveTimesheet(row._id, "approved")}>
               Approve
             </Button>
@@ -112,33 +112,35 @@ const TimesheetsPage = () => {
   return (
     <section className="flex flex-col gap-4">
       <PageHeader eyebrow="Operations" title="Timesheets" />
-      <form className="panel p-5 grid gap-3 md:grid-cols-5" onSubmit={submitTimesheet}>
-        <select className="ghost-input" value={form.projectId} onChange={updateField("projectId")}>
-          <option value="">Project</option>
-          {projects.map((project) => (
-            <option key={project._id} value={project._id}>
-              {project.name}
-            </option>
-          ))}
-        </select>
-        <select className="ghost-input" value={form.taskId} onChange={updateField("taskId")}>
-          <option value="">Task (optional)</option>
-          {tasks.map((task) => (
-            <option key={task._id} value={task._id}>
-              {task.title}
-            </option>
-          ))}
-        </select>
-        <input className="ghost-input" type="date" value={form.workDate} onChange={updateField("workDate")} />
-        <input className="ghost-input" type="number" min="0" max="24" value={form.hours} onChange={updateField("hours")} />
-        <Button type="submit" variant="primary">Log hours</Button>
-        <textarea
-          className="ghost-input md:col-span-5"
-          placeholder="Notes"
-          value={form.notes}
-          onChange={updateField("notes")}
-        />
-      </form>
+      {isAdmin ? (
+        <form className="panel p-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" onSubmit={submitTimesheet}>
+          <select className="ghost-input" value={form.projectId} onChange={updateField("projectId")}>
+            <option value="">Project</option>
+            {projects.map((project) => (
+              <option key={project._id} value={project._id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+          <select className="ghost-input" value={form.taskId} onChange={updateField("taskId")}>
+            <option value="">Task (optional)</option>
+            {tasks.map((task) => (
+              <option key={task._id} value={task._id}>
+                {task.title}
+              </option>
+            ))}
+          </select>
+          <input className="ghost-input" type="date" value={form.workDate} onChange={updateField("workDate")} />
+          <input className="ghost-input" type="number" min="0" max="24" value={form.hours} onChange={updateField("hours")} />
+          <Button type="submit" variant="primary">Log hours</Button>
+          <textarea
+            className="ghost-input sm:col-span-2 lg:col-span-5"
+            placeholder="Notes"
+            value={form.notes}
+            onChange={updateField("notes")}
+          />
+        </form>
+      ) : null}
       <DataTable
         columns={columns}
         rows={timesheets}

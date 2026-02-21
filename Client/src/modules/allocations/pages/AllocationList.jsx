@@ -1,4 +1,4 @@
-﻿import {useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {listAllocations} from "../../../services/allocations.service";
 import {listUsers} from "../../../services/users.service";
@@ -9,6 +9,8 @@ import Button from "../../../components/ui/Button/Button";
 import Alert from "../../../components/ui/Alert/Alert";
 import {getErrorMessage} from "../../../utils/errors";
 import Avatar from "../../../components/ui/Avatar/Avatar";
+import {useAuthStore} from "../../../store/useAuthStore";
+import {useAvatarStore} from "../../../store/useAvatarStore";
 
 const AllocationList = () => {
   const navigate = useNavigate();
@@ -18,10 +20,19 @@ const AllocationList = () => {
   const [filters, setFilters] = useState({employeeId: "", projectId: ""});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const user = useAuthStore((state) => state.user);
+  const roleName = user?.role || user?.roleId?.name || user?.roleId;
+  const isAdmin = roleName?.toLowerCase() === "admin";
+  const avatarOverrides = useAvatarStore((state) => state.overrides);
+  const filtersRef = useRef(filters);
 
-  const fetchAllocations = (overrideFilters) => {
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
+  const fetchAllocations = useCallback((overrideFilters) => {
     setLoading(true);
-    const activeFilters = overrideFilters || filters;
+    const activeFilters = overrideFilters || filtersRef.current;
     listAllocations({
       limit: 20,
       employeeId: activeFilters.employeeId || undefined,
@@ -36,13 +47,17 @@ const AllocationList = () => {
         setError(getErrorMessage(err, "Unable to load allocations"));
       })
       .finally(() => setLoading(false));
-  };
+  }, []);
 
   useEffect(() => {
     fetchAllocations();
-    listUsers({limit: 200}).then((res) => setEmployees(res.data.items || [])).catch(() => setEmployees([]));
-    listProjects({limit: 200}).then((res) => setProjects(res.data.items || [])).catch(() => setProjects([]));
-  }, []);
+    listUsers({limit: 200})
+      .then((res) => setEmployees(res.data.items || []))
+      .catch(() => setEmployees([]));
+    listProjects({limit: 200})
+      .then((res) => setProjects(res.data.items || []))
+      .catch(() => setProjects([]));
+  }, [fetchAllocations]);
 
   const updateFilter = (field) => (event) => {
     setFilters((prev) => ({...prev, [field]: event.target.value}));
@@ -54,7 +69,11 @@ const AllocationList = () => {
       label: "Employee",
       render: (row) => (
         <div className="flex items-center gap-2">
-          <Avatar src={row.employeeId?.avatar} name={row.employeeId?.name} size="sm" />
+          <Avatar
+            src={avatarOverrides[row.employeeId?._id] || row.employeeId?.avatar}
+            name={row.employeeId?.name}
+            size="sm"
+          />
           <span>{row.employeeId?.name}</span>
         </div>
       ),
@@ -79,13 +98,15 @@ const AllocationList = () => {
         eyebrow="Delivery"
         title="Resource allocations"
         action={
-          <Button variant="primary" onClick={() => navigate("/allocations/new")}>
-            Assign resource
-          </Button>
+          isAdmin ? (
+            <Button variant="primary" onClick={() => navigate("/allocations/new")}>
+              Assign resource
+            </Button>
+          ) : null
         }
       />
       <div className="panel p-4">
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <select
             className="ghost-input"
             value={filters.employeeId}
@@ -110,7 +131,7 @@ const AllocationList = () => {
               </option>
             ))}
           </select>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button variant="outline" onClick={() => fetchAllocations(filters)}>
               Apply filters
             </Button>
@@ -138,6 +159,3 @@ const AllocationList = () => {
 };
 
 export default AllocationList;
-
-
-

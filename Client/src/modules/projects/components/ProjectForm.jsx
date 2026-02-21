@@ -32,7 +32,7 @@ const ProjectForm = ({initialValues, managers = [], onSubmit, loading}) => {
 
   return (
     <form className="panel p-6" onSubmit={handleSubmit}>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="text-xs uppercase tracking-[0.2em] text-secondary">
             Project name

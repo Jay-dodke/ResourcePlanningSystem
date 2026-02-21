@@ -50,7 +50,7 @@ const NotificationForm = ({onSubmit, loading}) => {
 
   return (
     <form className="panel p-6" onSubmit={handleSubmit}>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="text-xs uppercase tracking-[0.2em] text-secondary">Title</label>
           <input className="ghost-input mt-2" value={form.title} onChange={updateField("title")} />
@@ -65,7 +65,7 @@ const NotificationForm = ({onSubmit, loading}) => {
             <option value="error">Error</option>
           </select>
         </div>
-        <div className="md:col-span-2">
+        <div className="sm:col-span-2">
           <label className="text-xs uppercase tracking-[0.2em] text-secondary">Message</label>
           <textarea
             className="ghost-input mt-2 min-h-[120px]"
@@ -108,7 +108,7 @@ const NotificationForm = ({onSubmit, loading}) => {
           </div>
         )}
         {targetType === "users" && (
-          <div className="grid gap-2 md:grid-cols-2">
+          <div className="grid gap-2 sm:grid-cols-2">
             {users.map((user) => (
               <label key={user._id} className="flex items-center gap-2 text-sm text-secondary">
                 <input type="checkbox" checked={selectedUsers.includes(user._id)} onChange={() => toggleUser(user._id)} />

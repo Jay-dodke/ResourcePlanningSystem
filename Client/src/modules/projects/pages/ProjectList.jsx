@@ -1,4 +1,4 @@
-﻿import {useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {listProjects} from "../../../services/projects.service";
 import DataTable from "../../../components/tables/DataTable/DataTable";
@@ -7,6 +7,7 @@ import Button from "../../../components/ui/Button/Button";
 import Badge from "../../../components/ui/Badge/Badge";
 import Alert from "../../../components/ui/Alert/Alert";
 import {getErrorMessage} from "../../../utils/errors";
+import {useAuthStore} from "../../../store/useAuthStore";
 
 const ProjectList = () => {
   const navigate = useNavigate();
@@ -14,10 +15,18 @@ const ProjectList = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const user = useAuthStore((state) => state.user);
+  const roleName = user?.role || user?.roleId?.name || user?.roleId;
+  const isAdmin = roleName?.toLowerCase() === "admin";
+  const searchRef = useRef(search);
 
-  const fetchProjects = () => {
+  useEffect(() => {
+    searchRef.current = search;
+  }, [search]);
+
+  const fetchProjects = useCallback(() => {
     setLoading(true);
-    listProjects({limit: 20, search})
+    listProjects({limit: 20, search: searchRef.current})
       .then((res) => {
         setError("");
         setProjects(res.data.items || []);
@@ -27,11 +36,11 @@ const ProjectList = () => {
         setError(getErrorMessage(err, "Unable to load projects"));
       })
       .finally(() => setLoading(false));
-  };
+  }, []);
 
   useEffect(() => {
     fetchProjects();
-  }, []);
+  }, [fetchProjects]);
 
   const columns = [
     {key: "name", label: "Project"},
@@ -52,11 +61,14 @@ const ProjectList = () => {
     {
       key: "actions",
       label: "Actions",
-      render: (row) => (
-        <Button variant="ghost" onClick={() => navigate(`/projects/${row._id}/edit`)}>
-          Edit
-        </Button>
-      ),
+      render: (row) =>
+        isAdmin ? (
+          <Button variant="ghost" onClick={() => navigate(`/projects/${row._id}/edit`)}>
+            Edit
+          </Button>
+        ) : (
+          "-"
+        ),
     },
   ];
 
@@ -66,24 +78,26 @@ const ProjectList = () => {
         eyebrow="Delivery"
         title="Projects"
         action={
-          <Button variant="primary" onClick={() => navigate("/projects/new")}>
-            New project
-          </Button>
+          isAdmin ? (
+            <Button variant="primary" onClick={() => navigate("/projects/new")}>
+              New project
+            </Button>
+          ) : null
         }
       />
       <div className="panel p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <input
-            className="ghost-input md:max-w-xs"
+            className="ghost-input sm:max-w-xs"
             placeholder="Search projects"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button variant="outline" onClick={fetchProjects}>
               Search
             </Button>
-            <Button variant="ghost">Timeline</Button>
+            {isAdmin ? <Button variant="ghost">Timeline</Button> : null}
           </div>
         </div>
       </div>
@@ -98,6 +112,3 @@ const ProjectList = () => {
 };
 
 export default ProjectList;
-
-
-
